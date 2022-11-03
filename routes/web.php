@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProductController;
-use App\Models\Product;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,5 +15,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/',[ProductController::class,'allProducts']);
-Route::post('/add/{id}',[ProductController::class,'addProduct'])->name('add');
+Route::get('/', [ProductController::class, 'availableProducts'])->name('home');
+Route::post('/add/{id}', [ProductController::class, 'addToCart'])->name('add');
+Route::get('/login', [UserController::class, 'showLogin'])->name('login');
+Route::get('/cart', [ProductController::class, 'showCart'])->name('cart');
+Route::post('/remove/{id}', [ProductController::class, 'removeFromCart'])->name('remove');
+Route::post('/login',[UserController::class,'login'])->name('log');

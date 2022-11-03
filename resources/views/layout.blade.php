@@ -1,7 +1,7 @@
 <html lang="EN">
 <head>
     <title>Shop</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="resources/css/style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
@@ -18,9 +18,9 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav">
-                <a class="nav-link active" aria-current="page" href=''>Products</a>
-                <a class="nav-link" href="">Login</a>
-                <a class="nav-link" href="">Cart</a>
+                <a class="nav-link active" aria-current="page" href="{{route('home')}}">Products</a>
+                <a class="nav-link" href="{{route('login')}}">Login</a>
+                <a class="nav-link" href="{{route('cart')}}">Cart</a>
             </div>
         </div>
     </div>
