@@ -10,10 +10,16 @@
                             <h5 class="card-title">{{$product->title}}</h5>
                             <p class="card-text">{{$product->description}}</p>
                             <p class="card-text">Price: {{$product->price}} $</p>
-                            <form action="{{route('add',$product->id)}}" method="POST">
-                                @csrf
-                                <button class="btn btn-primary" type="submit">Add</button>
-                            </form>
+                            @guest
+                                <form action="{{route('add',$product->id)}}" method="POST">
+                                    @csrf
+                                    <button class="btn btn-primary" type="submit">Add</button>
+                                </form>
+                            @endguest
+                            @auth
+                                <a class="btn btn-primary" href="{{route('edit',$product->id)}}">Edit</a>
+                                <a class="btn btn-primary" href="{{route('eliminate',$product->id)}}">Remove</a>
+                            @endauth
                         </div>
                     </div>
                 </div>

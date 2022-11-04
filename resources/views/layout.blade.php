@@ -19,8 +19,16 @@
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav">
                 <a class="nav-link active" aria-current="page" href="{{route('home')}}">Products</a>
-                <a class="nav-link" href="{{route('login')}}">Login</a>
-                <a class="nav-link" href="{{route('cart')}}">Cart</a>
+                @guest
+                    <a class="nav-link" href="{{route('login')}}">Login</a>
+                    <a class="nav-link" href="{{route('cart')}}">Cart</a>
+                @endguest
+                @auth
+                    <form action="{{route('logout')}}" method="post">
+                        @csrf
+                        <button class=" btn btn-outline-light nav-link" type="submit">Logout</button>
+                    </form>
+                @endauth
             </div>
         </div>
     </div>

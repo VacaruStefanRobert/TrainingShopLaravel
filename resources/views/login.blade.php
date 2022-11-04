@@ -8,14 +8,17 @@
                         <div class="card-body p-5 text-center">
 
                             <div class="mb-md-5 mt-md-4 pb-5">
-                                <form action="{{route('log')}}" method="POST">
+                                <form action="{{route('log')}}" method="post">
+                                    @csrf
                                     <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
                                     <p class="text-white-50 mb-5">Please enter your username and password!</p>
-
+                                    @error('name')
+                                    <p class="text-red-50 mb-5" style="color: red">{{$message}}</p>
+                                    @enderror
                                     <div class="form-outline form-white mb-4">
                                         <label class="form-label" for="typeNameX">Username</label>
                                         <input type="text" id="typeNameX" class="form-control form-control-lg"
-                                               name="name"/>
+                                               name="name" value="{{old('name')}}"/>
 
                                     </div>
                                     <div class="form-outline form-white mb-4">

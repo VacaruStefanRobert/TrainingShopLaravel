@@ -54,8 +54,6 @@ class ProductController extends Controller
                 "products" => []
             ]);
         }
-
-
     }
 
     public function removeFromCart($id): Redirector|Application|RedirectResponse
@@ -65,5 +63,13 @@ class ProductController extends Controller
         unset($cart[array_search($id, $cart)]);
         Session::put('cart', $cart);
         return redirect('/cart');
+    }
+
+    public function showEdit($id): Factory|View|Application
+    {
+        return view('edit', [
+                'product' => Product::query()->where('id', $id)->get()
+            ]
+        );
     }
 }
