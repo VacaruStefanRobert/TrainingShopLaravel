@@ -24,6 +24,7 @@
                     <a class="nav-link" href="{{route('cart')}}">Cart</a>
                 @endguest
                 @auth
+                    <a class="nav-link" href="{{route('showAddProduct')}}">Add Product</a>
                     <form action="{{route('logout')}}" method="post">
                         @csrf
                         <button class=" btn btn-outline-light nav-link" type="submit">Logout</button>

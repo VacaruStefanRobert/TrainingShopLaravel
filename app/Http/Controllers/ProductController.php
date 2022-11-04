@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use Illuminate\Http\Request;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -65,11 +66,52 @@ class ProductController extends Controller
         return redirect('/cart');
     }
 
-    public function showEdit($id): Factory|View|Application
+    public function showEdit(Product $product): Factory|View|Application
     {
-        return view('edit', [
-                'product' => Product::query()->where('id', $id)->get()
+        return view('product', [
+                'product' => $product
             ]
         );
+    }
+
+    public function edit(Request $request, Product $product): Redirector|Application|RedirectResponse
+    {
+        $attributes = $request->validate(
+            [
+                'title' => 'required',
+                'description' => 'required',
+                'price' => 'required',
+                'image' => 'required'
+            ]
+        );
+        if ($product->update($attributes)) {
+            return redirect('/');
+        } else {
+            return back()->withErrors(['errors' => 'Please give an input for every field!']);
+        }
+    }
+
+    public function eliminate(Product $product): Redirector|Application|RedirectResponse
+    {
+        $product->delete();
+        return redirect('/');
+
+    }
+    public function showAddProduct(): Factory|View|Application
+    {
+        return view('product');
+    }
+    public function addProduct(Request $request): Redirector|Application|RedirectResponse
+    {
+        $attributes = $request->validate(
+            [
+                'title' => 'required',
+                'description' => 'required',
+                'price' => 'required',
+                'image' => 'required'
+            ]
+        );
+        Product::query()->create($attributes);
+        return redirect('/');
     }
 }

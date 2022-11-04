@@ -28,7 +28,7 @@ class UserController extends Controller
             session()->regenerate();
             return redirect('/');
         }
-        return back()->withInput()->withErrors(['name' => 'Wrong credentials!']);
+        return back()->withInput()->withErrors(['errors' => 'Wrong credentials!']);
     }
     public function logout(): Redirector|Application|RedirectResponse
     {

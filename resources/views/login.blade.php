@@ -12,7 +12,7 @@
                                     @csrf
                                     <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
                                     <p class="text-white-50 mb-5">Please enter your username and password!</p>
-                                    @error('name')
+                                    @error('errors')
                                     <p class="text-red-50 mb-5" style="color: red">{{$message}}</p>
                                     @enderror
                                     <div class="form-outline form-white mb-4">
