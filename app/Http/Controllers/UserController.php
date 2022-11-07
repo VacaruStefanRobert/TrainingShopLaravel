@@ -30,6 +30,7 @@ class UserController extends Controller
         }
         return back()->withInput()->withErrors(['errors' => 'Wrong credentials!']);
     }
+
     public function logout(): Redirector|Application|RedirectResponse
     {
         auth()->logout();

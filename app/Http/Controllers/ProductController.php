@@ -97,10 +97,12 @@ class ProductController extends Controller
         return redirect('/');
 
     }
+
     public function showAddProduct(): Factory|View|Application
     {
         return view('product');
     }
+
     public function addProduct(Request $request): Redirector|Application|RedirectResponse
     {
         $attributes = $request->validate(
