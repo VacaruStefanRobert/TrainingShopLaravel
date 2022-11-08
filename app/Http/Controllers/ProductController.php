@@ -9,13 +9,15 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 class ProductController extends Controller
 {
     public function availableProducts(): Factory|View|Application
     {
-        if (Session::has('cart') and !empty(Session::get('cart'))) {
+        //verify if your session is created / is not empty and if you're not connected as admin
+        if (Session::has('cart') and !empty(Session::get('cart')) and !Auth::check()) {
             return view('home', [
                 'products' => Product::query()->whereNotIn('id', Session::get('cart'))->get()
             ]);

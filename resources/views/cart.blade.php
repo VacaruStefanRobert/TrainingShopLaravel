@@ -13,7 +13,7 @@
                             <form action="{{route('remove',$product->id)}}" method="POST">
                                 @csrf
                                 <button class="btn btn-primary" type="submit"
-                                        name="remove">Remove
+                                        name="remove">{{__('Remove')}}
                                 </button>
                             </form>
                         </div>
@@ -25,29 +25,29 @@
             <form action="{{route('storeAndMail')}}" method="POST">
                 @csrf
                 <div class="mb-3">
-                    <label for="exampleFormControlInput1" class="form-label">Name</label>
+                    <label for="exampleFormControlInput1" class="form-label">{{__('Name')}}</label>
                     <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="ex: John Doe"
                            name="name">
                 </div>
                 <div class="mb-3">
-                    <label for="exampleFormControlInput1" class="form-label">Email</label>
+                    <label for="exampleFormControlInput1" class="form-label">{{__('Email')}}</label>
                     <input type="email" class="form-control" id="exampleFormControlInput1"
                            placeholder="ex: example@example.com" name="email">
                 </div>
                 <div class="mb-3">
                     <label for="exampleFormControlTextarea1"
-                           class="form-label">Comments and details</label>
+                           class="form-label">{{__('Comments and details')}}</label>
                     <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="comments"></textarea>
                 </div>
                 <div class="mb-3">
-                    <div>Price: {{$totalPrice}} $</div>
+                    <div>{{__('Price')}}: {{$totalPrice}} $</div>
                     <input type="hidden" value="{{$totalPrice}}" name="price">
                 </div>
-                <button class="btn btn-primary" type="submit" name="checkout">Checkout</button>
+                <button class="btn btn-primary" type="submit" name="checkout">{{__('Checkout')}}</button>
             </form>
         </div>
     @else
-        <div>No products in cart!</div><br>
+        <div>{{__('No products in cart!')}}</div><br>
     @endif
 @endsection
 

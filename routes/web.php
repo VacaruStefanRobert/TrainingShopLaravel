@@ -30,4 +30,6 @@ Route::delete('/eliminate/{product}', [ProductController::class, 'eliminate'])->
 Route::patch('/edit/{product}', [ProductController::class, 'edit'])->name('edit')->middleware('auth');
 Route::get('/addProduct', [ProductController::class, 'showAddProduct'])->name('showAddProduct')->middleware('auth');
 Route::post('/addProduct/add', [ProductController::class, 'addProduct'])->name('addProduct')->middleware('auth');
+Route::get('/orders',[OrderController::class,'showOrders'])->name('orders')->middleware('auth');
+Route::get('/order/{order}',[OrderController::class,'showOrder'])->name('order')->middleware('auth');
 

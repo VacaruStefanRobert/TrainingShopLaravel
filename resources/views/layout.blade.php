@@ -18,16 +18,17 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav">
-                <a class="nav-link active" aria-current="page" href="{{route('home')}}">Products</a>
+                <a class="nav-link active" aria-current="page" href="{{route('home')}}">{{__('Products')}}</a>
                 @guest
-                    <a class="nav-link" href="{{route('login')}}">Login</a>
-                    <a class="nav-link" href="{{route('cart')}}">Cart</a>
+                    <a class="nav-link" href="{{route('login')}}">{{__('Login')}}</a>
+                    <a class="nav-link" href="{{route('cart')}}">{{__('Cart')}}</a>
                 @endguest
                 @auth
-                    <a class="nav-link" href="{{route('showAddProduct')}}">Add Product</a>
+                    <a class="nav-link" href="{{route('showAddProduct')}}">{{__('Add Product')}}</a>
+                    <a class="nav-link" href="{{route('orders')}}">{{__('Orders')}}</a>
                     <form action="{{route('logout')}}" method="post">
                         @csrf
-                        <button class=" btn btn-outline-light nav-link" type="submit">Logout</button>
+                        <button class=" btn btn-outline-light nav-link" type="submit">{{__('Logout')}}</button>
                     </form>
                 @endauth
             </div>
