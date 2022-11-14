@@ -17,7 +17,7 @@ class UserController extends Controller
         return view('login');
     }
 
-    public function login(Request $request): Redirector|Application|RedirectResponse
+    public function login(Request $request)
     {
         $attributes = $request->validate([
                 'name' => 'required',
@@ -26,9 +26,13 @@ class UserController extends Controller
         );
         if (auth()->attempt($attributes)) {
             session()->regenerate();
-            return redirect('/');
+            return response()->json([
+                'message'=>'Success!'
+            ]);
         }
-        return back()->withInput()->withErrors(['errors' => 'Wrong credentials!']);
+        return response()->json([
+            'message'=>'Failed!'
+        ]);
     }
 
     public function logout(): Redirector|Application|RedirectResponse

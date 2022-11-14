@@ -14,31 +14,27 @@ use Illuminate\Support\Facades\Session;
 
 class ProductController extends Controller
 {
-    public function availableProducts(): Factory|View|Application
+    public function availableProducts()
     {
         //verify if your session is created / is not empty and if you're not connected as admin
         if (Session::has('cart') and !empty(Session::get('cart')) and !Auth::check()) {
-            return view('home', [
-                'products' => Product::query()->whereNotIn('id', Session::get('cart'))->get()
-            ]);
+            return response()->json(Product::query()->whereNotIn('id', Session::get('cart'))->get());
         } else {
-            return view('home', [
-                'products' => Product::all()
-            ]);
+            return response()->json(Product::all());
         }
     }
 
-    public function addToCart($id): Redirector|Application|RedirectResponse
+    public function addToCart($id)
     {
         if (Session::has('cart')) {
             Session::push('cart', $id);
         } else {
             Session::put('cart', [$id]);
         }
-        return redirect('/cart');
+        return $this->showCart();
     }
 
-    public function showCart(): Factory|View|Application
+    public function showCart()
     {
         if (!empty(Session::get('cart')) and Session::has('cart')) {
             $products = Product::query()->whereIn('id', Session::get('cart'))->get();
@@ -48,24 +44,24 @@ class ProductController extends Controller
                 $totalPrice += $product->price;
             }
 
-            return view('cart', [
-                "products" => $products,
+            return response()->json([
+                "products" => $products->toJson(),
                 "totalPrice" => $totalPrice
             ]);
         } else {
-            return view('cart', [
-                "products" => []
+            return response()->json([
+                'message' => 'No products'
             ]);
         }
     }
 
-    public function removeFromCart($id): Redirector|Application|RedirectResponse
+    public function removeFromCart($id)
     {
         $cart = Session::get('cart');
         Session::forget('cart');
         unset($cart[array_search($id, $cart)]);
         Session::put('cart', $cart);
-        return redirect('/cart');
+        return $this->showCart();
     }
 
     public function showEdit(Product $product): Factory|View|Application
