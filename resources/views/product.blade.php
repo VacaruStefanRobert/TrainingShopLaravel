@@ -2,7 +2,7 @@
 @section('content')
     <div class="container px-4">
         <form action="@if (isset($product)){{route('edit',$product->id)}}@else {{route('addProduct')}}@endif"
-              method="POST">
+              method="POST" enctype="multipart/form-data">
             @csrf
             @if (isset($product))
                 @method('PATCH')
@@ -27,9 +27,9 @@
                        value="@isset($product){{$product->price}}@endisset" name="price">
             </div>
             <div class="mb-3">
-                <label for="formFile" class="form-label">{{__('Input your image')}}</label>
-                <input class="form-control" type="file" id="formFile" name="image"
-                       value="../images/@isset($product){{$product->image}}@endisset">
+                <label for="image" class="form-label">{{__('Input your image')}}</label>
+                <input class="form-control" type="file" id="image" name="image"
+                       value="@isset($product)../images/{{$product->image}}@endisset">
             </div>
             @error('errors')
             <p class="text-red-50 mb-5" style="color: red">{{$message}}</p>

@@ -11,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -83,9 +84,12 @@ class ProductController extends Controller
                 'title' => 'required',
                 'description' => 'required',
                 'price' => 'required',
-                'image' => 'required'
+                'image' => ['required', 'mimes:jpg,jpeg,png,gif,pfif']
             ]
         );
+        $attributes['image'] = $request->file('image')->getClientOriginalName();
+        $this->removeImage("/public/images/{$product->image}");
+        $this->storeImage($request);
         if ($product->update($attributes)) {
             return redirect('/');
         } else {
@@ -95,9 +99,14 @@ class ProductController extends Controller
 
     public function eliminate(Product $product): Redirector|Application|RedirectResponse
     {
+        $this->removeImage("/public/images/{$product->image}");
         $product->delete();
         return redirect('/');
+    }
 
+    public function removeImage($path)
+    {
+        Storage::delete($path);
     }
 
     public function showAddProduct(): Factory|View|Application
@@ -112,10 +121,20 @@ class ProductController extends Controller
                 'title' => 'required',
                 'description' => 'required',
                 'price' => 'required',
-                'image' => 'required'
+                'image' => ['required', 'mimes:jpg,jpeg,png,gif,pfif']
             ]
         );
+        $attributes['image'] = $request->file('image')->getClientOriginalName();
+        $this->storeImage($request);
         Product::query()->create($attributes);
         return redirect('/');
     }
+
+    public function storeImage($request)
+    {
+        if ($request->hasFile('image')) {
+            $request->file('image')->storeAs('images', $request->file('image')->getClientOriginalName(), 'public');
+        }
+    }
+
 }

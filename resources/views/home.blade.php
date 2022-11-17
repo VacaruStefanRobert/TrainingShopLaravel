@@ -6,7 +6,7 @@
             @foreach($products as $product)
                 <div class="col">
                     <div class="card h-100">
-                        <img src="images/{{$product->image}} " class="card-img-top img-fluid" alt="">
+                        <img src="../storage/app/public/images/{{$product->image}} " class="card-img-top img-fluid" alt="">
                         <div class="card-body">
                             <h5 class="card-title">{{$product->title}}</h5>
                             <p class="card-text">{{$product->description}}</p>

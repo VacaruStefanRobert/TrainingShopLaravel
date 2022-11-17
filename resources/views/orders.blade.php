@@ -45,7 +45,7 @@
                                         <td>
                                             <div class="d-flex mb-2">
                                                 <div class="flex-shrink-0">
-                                                    <img src="images/{{$product->image}} " alt="" width="35"
+                                                    <img src="../storage/app/public/images/{{$product->image}} " alt="" width="35"
                                                          class="img-fluid">
                                                 </div>
                                                 <div class="flex-lg-grow-1 ms-3">
