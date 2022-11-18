@@ -18,7 +18,7 @@
                         <div class="card-body">
                             <div class="mb-3 d-flex justify-content-between">
                                 <div>
-                                    <span class="me-3">{{ $order->date}}</span>
+                                    <span class="h6">Date: {{ $order->created_at}}</span>
                                 </div>
                                 <div class="d-flex">
                                     <a href="{{route('order',$order->id)}}" type="button"
@@ -38,37 +38,6 @@
                                     </div>
                                 </div>
                             </div>
-                            @foreach ($order->products as $product)
-                                <table class="table table-borderless">
-                                    <tbody>
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex mb-2">
-                                                <div class="flex-shrink-0">
-                                                    <img src="../storage/app/public/images/{{$product->image}} " alt="" width="35"
-                                                         class="img-fluid">
-                                                </div>
-                                                <div class="flex-lg-grow-1 ms-3">
-                                                    <h6 class="small mb-0"><a href="#"
-                                                                              class="text-reset">{{$product->title}}</a>
-                                                    </h6>
-                                                    <span
-                                                        class="small">{{__('Description')}}: {{$product->description}}</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td></td>
-                                        <td class="text-end">$ {{$product->price}}</td>
-                                    </tr>
-                                    @endforeach
-                                    </tbody>
-                                    <tfoot>
-                                    <tr class="fw-bold">
-                                        <td colspan="2">TOTAL</td>
-                                        <td class="text-end">$ {{$order->price}}</td>
-                                    </tr>
-                                    </tfoot>
-                                </table>
                         </div>
                     </div>
                     <!-- Payment -->
@@ -89,6 +58,7 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>

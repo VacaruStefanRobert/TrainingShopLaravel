@@ -20,7 +20,7 @@ class UserController extends Controller
     public function login(Request $request): Redirector|Application|RedirectResponse
     {
         $attributes = $request->validate([
-                'name' => 'required',
+                'name' => ['required','max:255'],
                 'password' => 'required'
             ]
         );

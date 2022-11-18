@@ -81,14 +81,14 @@ class ProductController extends Controller
     {
         $attributes = $request->validate(
             [
-                'title' => 'required',
+                'title' => ['required','max:255'],
                 'description' => 'required',
                 'price' => 'required',
                 'image' => ['required', 'mimes:jpg,jpeg,png,gif,pfif']
             ]
         );
         $attributes['image'] = $request->file('image')->getClientOriginalName();
-        $this->removeImage("/public/images/{$product->image}");
+        $this->removeImage("/public/images/$product->image");
         $this->storeImage($request);
         if ($product->update($attributes)) {
             return redirect('/');
@@ -99,7 +99,7 @@ class ProductController extends Controller
 
     public function eliminate(Product $product): Redirector|Application|RedirectResponse
     {
-        $this->removeImage("/public/images/{$product->image}");
+        $this->removeImage("/public/images/$product->image");
         $product->delete();
         return redirect('/');
     }
@@ -118,7 +118,7 @@ class ProductController extends Controller
     {
         $attributes = $request->validate(
             [
-                'title' => 'required',
+                'title' => ['required','max:255'],
                 'description' => 'required',
                 'price' => 'required',
                 'image' => ['required', 'mimes:jpg,jpeg,png,gif,pfif']

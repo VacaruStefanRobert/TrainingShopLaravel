@@ -21,8 +21,8 @@ class OrderController extends Controller
     {
         $attributes = $request->validate(
             [
-                'name' => 'required',
-                'email' => 'required',
+                'name' => ['required','max:255'],
+                'email' => ['required','email:rfc,dns'],
                 'comments' => 'required',
                 'price' => 'required'
             ]
