@@ -14,15 +14,10 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'title',
-        'description',
-        'price',
-        'image'
-    ];
+    protected $guarded=[];
 
     public function orders(): BelongsToMany
     {
-        return $this->belongsToMany(Order::class, 'order_products');
+        return $this->belongsToMany(Order::class);
     }
 }

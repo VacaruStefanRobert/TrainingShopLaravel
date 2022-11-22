@@ -1,14 +1,12 @@
 @extends('layout')
 @section('content')
     <div class="container-fluid">
-
         <div class="container">
             <!-- Title -->
             <div class="d-flex justify-content-between align-items-center py-3">
-                <h2 class="h5 mb-0"><a href="#" class="text-muted"></a>{{__('Order')}} #{{$order->id}}
+                <h2 class="h5 mb-0"><a href="#" class="text-muted"></a>{{ __('Order') }} #{{ $order->id }}
                 </h2>
             </div>
-
             <!-- Main content -->
             <div class="row">
                 <div class="col-lg-8">
@@ -17,7 +15,7 @@
                         <div class="card-body">
                             <div class="mb-3 d-flex justify-content-between">
                                 <div>
-                                    <span class="me-3">{{ $order->date}}</span>
+                                    <span class="me-3">{{ $order->date }}</span>
                                 </div>
                                 <div class="d-flex">
                                     <div class="dropdown">
@@ -26,10 +24,11 @@
                                             <i class="bi bi-three-dots-vertical"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end">
-                                            <li><a class="dropdown-item" href="#"><i class="bi bi-pencil"></i> Edit</a>
+                                            <li><a class="dropdown-item" href="#"><i
+                                                        class="bi bi-pencil"></i> {{ __('Edit') }}</a>
                                             </li>
                                             <li><a class="dropdown-item" href="#"><i class="bi bi-printer"></i>
-                                                    Print</a></li>
+                                                    {{ __('Print') }}</a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -41,27 +40,28 @@
                                         <td>
                                             <div class="d-flex mb-2">
                                                 <div class="flex-shrink-0">
-                                                    <img src="../images/{{$product->image}} " alt="" width="35"
+                                                    <img src="{{ asset('storage/images/'.$product->image) }} " alt=""
+                                                         width="35"
                                                          class="img-fluid">
                                                 </div>
                                                 <div class="flex-lg-grow-1 ms-3">
                                                     <h6 class="small mb-0"><a href="#"
-                                                                              class="text-reset">{{$product->title}}</a>
+                                                                              class="text-reset">{{ $product->title }}</a>
                                                     </h6>
                                                     <span
-                                                        class="small">Description: {{$product->description}}</span>
+                                                        class="small">Description: {{ $product->description }}</span>
                                                 </div>
                                             </div>
                                         </td>
                                         <td></td>
-                                        <td class="text-end">$ {{$product->price}}</td>
+                                        <td class="text-end">$ {{ $product->price }}</td>
                                     </tr>
                                     @endforeach
                                     </tbody>
                                     <tfoot>
                                     <tr class="fw-bold">
                                         <td colspan="2">TOTAL</td>
-                                        <td class="text-end">$ {{$order->price}}</td>
+                                        <td class="text-end">$ {{ $order->total }}</td>
                                     </tr>
                                     </tfoot>
                                 </table>
@@ -72,14 +72,14 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-lg-6">
-                                    <h3 class="h6">{{__('Payment')}}</h3>
-                                    <p>Total: $ {{{$order->price}}}</p>
+                                    <h3 class="h6">{{ __('Payment') }}</h3>
+                                    <p>Total: $ {{{ $order->total }}}</p>
                                 </div>
                                 <div class="col-lg-6">
-                                    <h3 class="h6">{{__('Comments and details')}}</h3>
+                                    <h3 class="h6">{{ __('Comments and details') }}</h3>
                                     <address>
-                                        <strong>{{__('Name')}}: {{$order->name}}</strong><br>
-                                        {{__('Comments and details')}}: {{$order->comments}}
+                                        <strong>{{ __('Name') }}: {{ $order->name }}</strong><br>
+                                        {{ __('Comments and details') }}: {{ $order->comments }}
                                     </address>
                                 </div>
                             </div>

@@ -11,15 +11,10 @@ class Order extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'name',
-        'email',
-        'comments',
-        'price'
-    ];
+    protected $guarded=[];
 
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'order_products');
+        return $this->belongsToMany(Product::class);
     }
 }

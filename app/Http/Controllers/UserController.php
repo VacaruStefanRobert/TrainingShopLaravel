@@ -11,13 +11,12 @@ use Illuminate\Routing\Redirector;
 
 class UserController extends Controller
 {
-    //
-    public function showLogin(): Factory|View|Application
+    public function index(): View
     {
         return view('login');
     }
 
-    public function login(Request $request): Redirector|Application|RedirectResponse
+    public function store(Request $request): Redirector|RedirectResponse
     {
         $attributes = $request->validate([
                 'name' => ['required','max:255'],
@@ -26,15 +25,15 @@ class UserController extends Controller
         );
         if (auth()->attempt($attributes)) {
             session()->regenerate();
-            return redirect('/');
+            return redirect(route('products.index'));
         }
         return back()->withInput()->withErrors(['errors' => 'Wrong credentials!']);
     }
 
-    public function logout(): Redirector|Application|RedirectResponse
+    public function destroy(): Redirector|RedirectResponse
     {
         auth()->logout();
-        return redirect('/');
+        return redirect(route('index'));
     }
 
 }

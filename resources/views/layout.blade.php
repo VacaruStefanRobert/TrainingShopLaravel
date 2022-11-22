@@ -18,19 +18,23 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav">
-                <a class="nav-link active" aria-current="page" href="{{route('home')}}">{{__('Products')}}</a>
                 @guest
-                    <a class="nav-link" href="{{route('login')}}">{{__('Login')}}</a>
-                    <a class="nav-link" href="{{route('cart')}}">{{__('Cart')}}</a>
+                    <a class="nav-link active" aria-current="page"
+                       href="{{ route('index') }}">{{ __('Products') }}</a>
+                    <a class="nav-link" href="{{ route('users.index') }}">{{ __('Login') }}</a>
                 @endguest
                 @auth
-                    <a class="nav-link" href="{{route('showAddProduct')}}">{{__('Add Product')}}</a>
-                    <a class="nav-link" href="{{route('orders')}}">{{__('Orders')}}</a>
-                    <form action="{{route('logout')}}" method="post">
+                    <a class="nav-link active" aria-current="page"
+                       href="{{ route('products.index') }}">{{ __('Products') }}</a>
+                    <form action="{{ route('users.destroy') }}" method="POST">
+                        @method('DELETE')
                         @csrf
-                        <button class=" btn btn-outline-light nav-link" type="submit">{{__('Logout')}}</button>
+                        <button class=" btn btn-outline-light nav-link" type="submit">{{ __('Logout') }}</button>
                     </form>
+                    <a class="nav-link" href="{{ route('products.create') }}">{{ __('Add Product') }}</a>
+                    <a class="nav-link" href="{{ route('orders.index') }}">{{ __('Orders' )}}</a>
                 @endauth
+                <a class="nav-link" href="{{ route('cart.index') }}">{{ __('Cart') }}</a>
             </div>
         </div>
     </div>

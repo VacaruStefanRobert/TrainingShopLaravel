@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\AdminProductController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
@@ -15,21 +18,21 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::get('/', [ProductController::class, 'availableProducts'])->name('home');
-//guest routes
-Route::post('/add/{id}', [ProductController::class, 'addToCart'])->name('add')->middleware('guest');
-Route::get('/login', [UserController::class, 'showLogin'])->name('login')->middleware('guest');
-Route::get('/cart', [ProductController::class, 'showCart'])->name('cart')->middleware('guest');
-Route::post('/remove/{id}', [ProductController::class, 'removeFromCart'])->name('remove')->middleware('guest');
-Route::post('/login', [UserController::class, 'login'])->name('log')->middleware('guest');
-Route::post('/storeAndMail', [OrderController::class, 'storeAndMail'])->name('storeAndMail')->middleware('guest');
+Route::get('/', [ProductController::class, 'index'])->name('index');
+Route::get('/users', [UserController::class, 'index'])->name('users.index');
+Route::post('/users', [UserController::class, 'store'])->name('users.store');
+Route::put('/cart/{id}', [CartController::class, 'update'])->name('cart.update');
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::delete('/cart/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
+Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 //admin routes
-Route::post('/logout', [UserController::class, 'logout'])->name('logout')->middleware('auth');
-Route::get('/product/{product}', [ProductController::class, 'showEdit'])->name('product')->middleware('auth');
-Route::delete('/eliminate/{product}', [ProductController::class, 'eliminate'])->name('eliminate')->middleware('auth');
-Route::patch('/edit/{product}', [ProductController::class, 'edit'])->name('edit')->middleware('auth');
-Route::get('/addProduct', [ProductController::class, 'showAddProduct'])->name('showAddProduct')->middleware('auth');
-Route::post('/addProduct/add', [ProductController::class, 'addProduct'])->name('addProduct')->middleware('auth');
-Route::get('/orders',[OrderController::class,'showOrders'])->name('orders')->middleware('auth');
-Route::get('/order/{order}',[OrderController::class,'showOrder'])->name('order')->middleware('auth');
+Route::delete('/users', [UserController::class, 'destroy'])->name('users.destroy')->middleware('auth');
+Route::get('/products', [AdminProductController::class, 'index'])->name('products.index')->middleware('auth');
+Route::get('/products/{product}/edit', [AdminProductController::class, 'edit'])->name('products.edit')->middleware('auth');
+Route::get('/products/create', [AdminProductController::class, 'create'])->name('products.create')->middleware('auth');
+Route::post('/products', [AdminProductController::class, 'store'])->name('products.store')->middleware('auth');
+Route::patch('/products/{product}',[AdminProductController::class,'update'])->name('products.update')->middleware('auth');
+Route::delete('/products/{product}', [AdminProductController::class, 'destroy'])->name('products.destroy')->middleware('auth');
+Route::get('/orders', [OrderController::class, 'index'])->name('orders.index')->middleware('auth');
+Route::get('/order/{order}', [OrderController::class, 'show'])->name('orders.show')->middleware('auth');
 
