@@ -1,5 +1,6 @@
 @extends('layout')
 @section('content')
+
     @if($products)
         <div class="row row-cols-1 row-cols-md-3 g-4">
             @foreach($products as $product)
@@ -17,6 +18,13 @@
                                     @csrf
                                     <button class="btn btn-primary" type="submit">{{ __('Add') }}</button>
                                 </form>
+                                <form action="{{route('products.destroy',$product->id)}}" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-primary" type="submit">{{ __('Remove') }}</button>
+                                </form>
+                                <a class="btn btn-primary"
+                                   href="{{ route('products.edit',$product->id) }}">{{ __('Edit') }}</a>
                             </div>
                         </div>
                     </div>

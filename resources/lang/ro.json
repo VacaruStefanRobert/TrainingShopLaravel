@@ -28,5 +28,6 @@
     "Wrong credentials!" : "Credentiale gresite!",
     "Product Title" : "Titlu produs",
     "Product Description" : "Descriere Produs",
-    "Product Price" : "Pret Produs"
+    "Product Price" : "Pret Produs",
+    "Print": "Printeaza"
 }

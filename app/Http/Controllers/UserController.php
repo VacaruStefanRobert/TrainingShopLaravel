@@ -11,34 +11,31 @@ use Illuminate\Routing\Redirector;
 
 class UserController extends Controller
 {
-    //
-    public function showLogin(): Factory|View|Application
+    public function index(): View
     {
         return view('login');
     }
 
-    public function login(Request $request)
+    public function store(Request $request): Redirector|RedirectResponse
     {
         $attributes = $request->validate([
-                'name' => 'required',
+                'name' => ['required','max:255'],
                 'password' => 'required'
             ]
         );
         if (auth()->attempt($attributes)) {
             session()->regenerate();
-            return response()->json([
-                'message'=>'Success!'
-            ]);
+            return redirect(route('products.index'));
         }
         return response()->json([
             'message'=>'Failed!'
         ]);
     }
 
-    public function logout(): Redirector|Application|RedirectResponse
+    public function destroy(): Redirector|RedirectResponse
     {
         auth()->logout();
-        return redirect('/');
+        return redirect(route('index'));
     }
 
 }

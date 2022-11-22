@@ -57,7 +57,7 @@ class OrderShipped extends Mailable
     #[Pure] public function content(): Content
     {
         return new Content(
-            html: 'orderMail',
+            view: 'orderMail',
         );
     }
 

@@ -8,26 +8,32 @@
                         <div class="card-body p-5 text-center">
 
                             <div class="mb-md-5 mt-md-4 pb-5">
-                                <form action="{{route('log')}}" method="post">
+                                <form action="{{ route('users.store') }}" method="POST">
                                     @csrf
-                                    <h2 class="fw-bold mb-2 text-uppercase">{{__('Login')}}</h2>
-                                    <p class="text-white-50 mb-5">{{__('Please enter your username and password!')}}</p>
+                                    <h2 class="fw-bold mb-2 text-uppercase">{{ __('Login') }}</h2>
+                                    <p class="text-white-50 mb-5">{{ __('Please enter your username and password!') }}</p>
                                     @error('errors')
-                                    <p class="text-red-50 mb-5" style="color: red">{{__($message)}}</p>
+                                    <p class="text-50 mb-5" style="color: red">{{ __($message) }}</p>
                                     @enderror
                                     <div class="form-outline form-white mb-4">
-                                        <label class="form-label" for="typeNameX">{{__('Username')}}</label>
+                                        <label class="form-label" for="typeNameX">{{ __('Username') }}</label>
                                         <input type="text" id="typeNameX" class="form-control form-control-lg"
-                                               name="name" value="{{old('name')}}"/>
+                                               name="name" value="{{ old('name') }}"/>
+                                        @error('name')
+                                        <p class="text-50 mb-5" style="color: red">{{ __($message) }}</p>
+                                        @enderror
 
                                     </div>
                                     <div class="form-outline form-white mb-4">
-                                        <label class="form-label" for="typePasswordX">{{__('Password')}}</label>
+                                        <label class="form-label" for="typePasswordX">{{ __('Password') }}</label>
                                         <input type="password" id="typePasswordX" class="form-control form-control-lg"
                                                name="password"/>
+                                        @error('name')
+                                        <p class="text-50 mb-5" style="color: red">{{ __($message) }}</p>
+                                        @enderror
                                     </div>
                                     <button class="btn btn-outline-light btn-lg px-5"
-                                            type="submit">{{__('Login')}}
+                                            type="submit">{{ __('Login') }}
                                     </button>
                                 </form>
                             </div>
