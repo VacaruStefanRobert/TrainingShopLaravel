@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
@@ -11,19 +12,18 @@ use Illuminate\View\View;
 
 class AdminProductController extends Controller
 {
-    public function index(): View
+    public function index(): JsonResponse
     {
-        return view('products', [
-            'products' => Product::all()
-        ]);
+        return response()->json(
+            Product::all()
+        );
     }
 
-    public function edit(Product $product): View
+    public function edit(Product $product): JsonResponse
     {
-        return view('product', [
-                'product' => $product
-            ]
-        );
+        return response()->json([
+            'product' => $product
+        ]);
     }
 
     public function create(): View
@@ -31,14 +31,16 @@ class AdminProductController extends Controller
         return view('product');
     }
 
-    public function destroy(Product $product): Redirector|RedirectResponse
+    public function destroy(Product $product): JsonResponse
     {
         Storage::delete('/public/images/' . $product->image);
         $product->delete();
-        return redirect(route('products.index'));
+        return response()->json([
+            'message' => 'Success!'
+        ]);
     }
 
-    public function store(Request $request): Redirector|RedirectResponse
+    public function store(Request $request): JsonResponse
     {
         $attributes = $request->validate(
             [
@@ -52,14 +54,17 @@ class AdminProductController extends Controller
         if (!Storage::exists('public/images/' . $request->file('image')->getClientOriginalName())) {
             $this->storeImage($request->file('image'), $request->file('image')->getClientOriginalName());
         } else {
-            return back()->withInput()->withErrors(['errors' => 'A product already exists with this image!']);
+            return response()->json([
+                'errors' => 'A product already exists with this image!'
+            ]);
         }
-
         Product::query()->create($attributes);
-        return redirect(route('products.index'));
+        return response()->json([
+            'message' => 'Success!'
+        ]);
     }
 
-    public function update(Request $request, Product $product): Redirector|RedirectResponse
+    public function update(Request $request, Product $product): JsonResponse
     {
         $attributes = $request->validate(
             [
@@ -75,7 +80,9 @@ class AdminProductController extends Controller
             $this->storeImage($request->file('image'), $attributes['image']);
         }
         $product->update($attributes);
-        return redirect(route('products.index'));
+        return response()->json([
+            'message' => 'Success!'
+        ]);
     }
 
     public function storeImage($file, $name)

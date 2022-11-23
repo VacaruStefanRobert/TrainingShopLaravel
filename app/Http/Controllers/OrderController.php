@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 
 
 class OrderController extends Controller
 {
-    public function index(): View
+    public function index(): JsonResponse
     {
-        return view('orders', ['orders' => Order::all()]);
+        return response()->json(Order::all());
     }
 
     public function show(Order $order): View

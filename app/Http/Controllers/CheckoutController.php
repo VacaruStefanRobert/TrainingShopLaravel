@@ -6,6 +6,7 @@ use App\Mail\OrderShipped;
 use App\Models\Order;
 use App\Models\OrderProduct;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
@@ -14,12 +15,12 @@ use Illuminate\Support\Facades\Session;
 
 class CheckoutController extends Controller
 {
-    public function store(Request $request): Redirector|Application|RedirectResponse
+    public function store(Request $request): JsonResponse
     {
         $attributes = $request->validate(
             [
-                'name' => ['required','max:255'],
-                'email' => ['required','email:rfc,dns'],
+                'name' => ['required', 'max:255'],
+                'email' => ['required', 'email:rfc,dns'],
                 'comments' => 'required',
                 'total' => 'required'
             ]
@@ -33,6 +34,8 @@ class CheckoutController extends Controller
         Mail::to('manager@example.com')->send(new OrderShipped());
         //unset the session
         Session::forget('cart');
-        return redirect(route('index'));
+        return response()->json([
+            'message' => 'Success!'
+        ]);
     }
 }

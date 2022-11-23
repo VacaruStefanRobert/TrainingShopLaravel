@@ -14,28 +14,20 @@ function getCookie(c_name) {
     return "";
 }
 
+function checkPrivileges() {
+    if (localStorage.getItem('admin') !== 'true') {
+        window.location.hash = '#';
+    }
+}
+
 $(document).ready(function () {
-    $('.admin').hide();
-    /**
-     * A function that takes a products array and renders it's html
-     *
-     * The products array must be in the form of
-     * [{
-     *     "title": "Product 1 title",
-     *     "description": "Product 1 desc",
-     *     "price": 1
-     * },{
-     *     "title": "Product 2 title",
-     *     "description": "Product 2 desc",
-     *     "price": 2
-     * }]
-     */
-    let formData;
     /**
      * URL hash change handler
      */
+    let formData;
     window.onhashchange = function () {
         // First hide all the pages
+        renderNav();
         $('.page').hide();
         switch (window.location.hash) {
             case '#cart':
@@ -46,30 +38,21 @@ $(document).ready(function () {
                     dataType: 'json',
                     success: function (response) {
                         // Render the products in the cart list
-                        if (response.message === 'No products')
-                            $('.cart .prod').html(['<div>No products in cart!</div>'].join(''));
-                        else {
-                            $('.cart .prod').html(renderCart(response));
-                        }
+                        renderResponseForCart(response);
                     }
                 });
                 break;
-            case '#added':
+            case '#addToCart':
                 $('.cart').show();
-                //console.log(formData);
                 $.ajax({
-                    type: 'POST',
+                    type: 'PUT',
                     dataType: 'json',
-                    url: path + '/add/' + idObject,
+                    url: path + '/cart/' + idObject,
                     headers: {
                         "X-XSRF-TOKEN": getCookie('XSRF-TOKEN')
                     },
-                    success: function (response) {
-                        if (response.message === 'No products')
-                            $('.cart .prod').html(['<div>No products in cart!</div>'].join(''));
-                        else {
-                            $('.cart .prod').html(renderCart(response));
-                        }
+                    success: function () {
+                        changeHashOnSubmit('#cart');
                     }
                 })
                 break;
@@ -77,18 +60,13 @@ $(document).ready(function () {
                 $('.cart .prod').empty();
                 $('.cart').show();
                 $.ajax({
-                    type: 'POST',
-                    dataType: 'json',
-                    url: path + '/remove/' + idObject,
+                    type: 'DELETE',
+                    url: path + '/cart/' + idObject,
                     headers: {
                         "X-XSRF-TOKEN": getCookie('XSRF-TOKEN')
                     },
-                    success: function (response) {
-                        if (response.message === 'No products')
-                            $('.cart .prod').html(['<div>No products in cart!</div>'].join(''));
-                        else {
-                            $('.cart .prod').html(renderCart(response));
-                        }
+                    success: function () {
+                        changeHashOnSubmit('#cart');
                     }
                 })
                 break;
@@ -101,23 +79,21 @@ $(document).ready(function () {
             case '#loginSubmit':
                 $('.login').show();
                 removeErrors();
-                console.log(formData);
-                formData = extractFormInput('#login');
                 $.ajax({
                     type: 'POST',
                     dataType: 'json',
-                    url: path + '/login',
+                    url: path + '/users',
                     headers: {
                         "X-XSRF-TOKEN": getCookie('XSRF-TOKEN')
                     },
-                    data: {
-                        "name": formData['name'],
-                        "password": formData['password']
-                    },
+                    data: new FormData(document.getElementById('login')),
+                    processData: false,
+                    contentType: false,
+                    cache: false,
                     success: function (response) {
                         if ('Success!' === response.message) {
                             changePrivileges('admin');
-                            window.location.hash = '#index';
+                            window.location.hash = '#products';
                         } else {
                             if (!$('#error').length) {
                                 $('#title').after('<p class="text-red-50 mb-5" style="color: red" id="error">Wrong Credentials!</p>');
@@ -127,20 +103,108 @@ $(document).ready(function () {
                 })
                 break;
             case '#logout':
-
+                checkPrivileges();
                 $.ajax(
                     {
-                        type:'POST',
-                        url: path + '/logout',
+                        type: 'DELETE',
+                        url: path + '/users',
                         headers: {
                             "X-XSRF-TOKEN": getCookie('XSRF-TOKEN')
                         },
-                        success:function (){
+                        success: function () {
                             changePrivileges('guest');
-                            window.location.hash='#index';
+                            window.location.hash = '#index';
                         }
                     }
                 );
+                break;
+            case '#products':
+                checkPrivileges();
+                $('.products').show();
+                // Load the products from the server
+                $.ajax(path + '/products', {
+                    dataType: 'json',
+                    success: function (response) {
+                        // Render the products in the index list
+                        $('.products').html(renderList(response, 'admin'));
+                    }
+                });
+                break;
+            case '#addShow':
+                checkPrivileges();
+                $('.add').show();
+                break;
+            case '#editShow':
+                checkPrivileges();
+                $('.add').show();
+                $.ajax({
+                    dataType: 'json',
+                    url: path + '/products/' + idObject + '/edit',
+                    success: function (response) {
+                        $('#titleInput').val(response['product'].title);
+                        $('#descriptionInput').val(response['product'].description);
+                        $('#priceInput').val(response['product'].price);
+                        $('#add').attr('onsubmit', 'changeHashOnSubmit(\'#editProduct\',' + idObject + ');return false;');
+                        $('#add').attr('id', 'edit');
+                    }
+                })
+                break;
+            case '#editProduct':
+                let formInfo = new FormData(document.getElementById('edit'));
+                formInfo.append('_method', 'patch');
+                $.ajax({
+                    type: 'POST',
+                    url: path + '/products/' + idObject,
+                    data: formInfo,
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    headers: {
+                        "X-XSRF-TOKEN": getCookie('XSRF-TOKEN')
+                    },
+                    success: function () {
+                        window.location.hash = '#products';
+                    }
+                });
+                break;
+            case '#addProduct':
+                $.ajax({
+                    type: 'POST',
+                    url: path + '/products',
+                    data: new FormData(document.getElementById('add')),
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    headers: {
+                        "X-XSRF-TOKEN": getCookie('XSRF-TOKEN')
+                    },
+                    success: function () {
+                        window.location.hash = '#products';
+                    }
+                });
+                break;
+            case '#delete':
+                $.ajax({
+                    type: 'DELETE',
+                    url: path + '/products/' + idObject,
+                    headers: {
+                        "X-XSRF-TOKEN": getCookie('XSRF-TOKEN')
+                    },
+                    success: function () {
+                        window.location.hash = '#products';
+                    }
+                })
+                break;
+            case '#orders':
+                checkPrivileges();
+                $('.orders').show();
+                $.ajax({
+                    dataType: 'json',
+                    url: path + '/orders',
+                    success: function (response) {
+                            $('.orders').html(renderOrders(response));
+                    }
+                })
                 break;
             default:
                 // If all else fails, always default to index
@@ -151,7 +215,7 @@ $(document).ready(function () {
                     dataType: 'json',
                     success: function (response) {
                         // Render the products in the index list
-                        $('.index').html(renderList(response));
+                        $('.index').html(renderList(response, 'index', 'guest'));
                     }
                 });
                 break;

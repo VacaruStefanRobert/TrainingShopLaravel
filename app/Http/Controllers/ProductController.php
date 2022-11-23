@@ -3,19 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Session;
 
 
 class ProductController extends Controller
 {
-    public function index(): View
+    public function index(): JsonResponse
     {
         //verify if your session is created / is not empty
         if (Session::has('cart')) {
-            return view('home', [
-                'products' => Product::query()->whereNotIn('id', Session::get('cart'))->get()
-            ]);
+            return response()->json(Product::query()->whereNotIn('id', Session::get('cart'))->get());
         } else {
             return response()->json(Product::all());
         }

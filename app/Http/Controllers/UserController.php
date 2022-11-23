@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Redirector;
 
 class UserController extends Controller
 {
@@ -16,26 +13,30 @@ class UserController extends Controller
         return view('login');
     }
 
-    public function store(Request $request): Redirector|RedirectResponse
+    public function store(Request $request): JsonResponse
     {
         $attributes = $request->validate([
-                'name' => ['required','max:255'],
+                'name' => ['required', 'max:255'],
                 'password' => 'required'
             ]
         );
         if (auth()->attempt($attributes)) {
             session()->regenerate();
-            return redirect(route('products.index'));
+            return response()->json([
+                'message' => 'Success!'
+            ]);
         }
         return response()->json([
-            'message'=>'Failed!'
+            'message' => 'Failed!'
         ]);
     }
 
-    public function destroy(): Redirector|RedirectResponse
+    public function destroy(): JsonResponse
     {
         auth()->logout();
-        return redirect(route('index'));
+        return response()->json([
+            'message' => 'Success!'
+        ]);
     }
 
 }
