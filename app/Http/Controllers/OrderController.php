@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
-
 
 class OrderController extends Controller
 {
@@ -15,8 +13,10 @@ class OrderController extends Controller
         return response()->json(Order::all());
     }
 
-    public function show(Order $order): View
+    public function show(Order $order): JsonResponse
     {
-        return view('order', ['order' => $order]);
+        return response()->json(['order' => $order,
+            'products'=>$order->products
+            ]);
     }
 }

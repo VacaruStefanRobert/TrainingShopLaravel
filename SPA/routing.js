@@ -1,30 +1,8 @@
-function getCookie(c_name) {
-    let c_start;
-    let c_end;
-    if (document.cookie.length > 0) {
-        c_start = document.cookie.indexOf(c_name + "=");
-        if (c_start !== -1) {
-            c_start = c_start + c_name.length + 1;
-            c_end = document.cookie.indexOf(";", c_start);
-            if (c_end === -1) c_end = document.cookie.length;
-
-            return unescape(document.cookie.substring(c_start, c_end));
-        }
-    }
-    return "";
-}
-
-function checkPrivileges() {
-    if (localStorage.getItem('admin') !== 'true') {
-        window.location.hash = '#';
-    }
-}
 
 $(document).ready(function () {
     /**
      * URL hash change handler
      */
-    let formData;
     window.onhashchange = function () {
         // First hide all the pages
         renderNav();
@@ -38,7 +16,7 @@ $(document).ready(function () {
                     dataType: 'json',
                     success: function (response) {
                         // Render the products in the cart list
-                        renderResponseForCart(response);
+                        $('.cart .prod').html(renderCart(response));
                     }
                 });
                 break;
@@ -52,9 +30,9 @@ $(document).ready(function () {
                         "X-XSRF-TOKEN": getCookie('XSRF-TOKEN')
                     },
                     success: function () {
-                        changeHashOnSubmit('#cart');
+                        window.location.hash = '#cart';
                     }
-                })
+                });
                 break;
             case '#removed':
                 $('.cart .prod').empty();
@@ -66,19 +44,17 @@ $(document).ready(function () {
                         "X-XSRF-TOKEN": getCookie('XSRF-TOKEN')
                     },
                     success: function () {
-                        changeHashOnSubmit('#cart');
+                        window.location.hash = '#cart';
                     }
-                })
+                });
                 break;
             //show login page
             case '#login':
-                removeErrors();
-                $('.login').show();
+                $('.login').show().html(renderLogin());
                 break;
             //login the user
             case '#loginSubmit':
                 $('.login').show();
-                removeErrors();
                 $.ajax({
                     type: 'POST',
                     dataType: 'json',
@@ -96,9 +72,14 @@ $(document).ready(function () {
                             window.location.hash = '#products';
                         } else {
                             if (!$('#error').length) {
-                                $('#title').after('<p class="text-red-50 mb-5" style="color: red" id="error">Wrong Credentials!</p>');
+                                $('#login .error').show();
                             }
                         }
+                    },
+                    error: function (xhr) {
+                        //general errors
+                        $('.login').show();
+                        renderErrors(xhr);
                     }
                 })
                 break;
@@ -130,13 +111,16 @@ $(document).ready(function () {
                     }
                 });
                 break;
+            //    Need to make edit page because it remains unchanged
             case '#addShow':
                 checkPrivileges();
-                $('.add').show();
+                $('.add').show().html(renderAddAndEdit());
+
                 break;
             case '#editShow':
                 checkPrivileges();
-                $('.add').show();
+                $('.add').show().html(renderAddAndEdit());
+                console.log(idObject)
                 $.ajax({
                     dataType: 'json',
                     url: path + '/products/' + idObject + '/edit',
@@ -144,8 +128,7 @@ $(document).ready(function () {
                         $('#titleInput').val(response['product'].title);
                         $('#descriptionInput').val(response['product'].description);
                         $('#priceInput').val(response['product'].price);
-                        $('#add').attr('onsubmit', 'changeHashOnSubmit(\'#editProduct\',' + idObject + ');return false;');
-                        $('#add').attr('id', 'edit');
+                        $('#add').attr('action', '#editProduct').attr('id', 'edit');
                     }
                 })
                 break;
@@ -162,8 +145,20 @@ $(document).ready(function () {
                     headers: {
                         "X-XSRF-TOKEN": getCookie('XSRF-TOKEN')
                     },
-                    success: function () {
-                        window.location.hash = '#products';
+                    success: function (response) {
+                        //if image already exists
+                        if (response['errors']) {
+                            $('.add').show();
+                            $('#imageError').show().html(response['errors']);
+
+                        } else {
+                            window.location.hash = '#products';
+                        }
+                    },
+                    error: function (xhr) {
+                        //general errors
+                        $('.add').show();
+                        renderErrors(xhr);
                     }
                 });
                 break;
@@ -178,8 +173,20 @@ $(document).ready(function () {
                     headers: {
                         "X-XSRF-TOKEN": getCookie('XSRF-TOKEN')
                     },
-                    success: function () {
-                        window.location.hash = '#products';
+                    success: function (response) {
+                        //if image already exists
+                        if (response['errors']) {
+                            $('.add').show();
+                            $('#imageError').show().html(response['errors']);
+
+                        } else {
+                            window.location.hash = '#products';
+                        }
+                    },
+                    error: function (xhr) {
+                        //general errors
+                        $('.add').show();
+                        renderErrors(xhr);
                     }
                 });
                 break;
@@ -202,9 +209,43 @@ $(document).ready(function () {
                     dataType: 'json',
                     url: path + '/orders',
                     success: function (response) {
-                            $('.orders').html(renderOrders(response));
+                        $('.orders').html(renderOrders(response));
+
+                    }
+                });
+                break;
+            case '#order':
+                checkPrivileges();
+                $('.order').show();
+                console.log(idObject);
+                $.ajax({
+                    dataType: 'json',
+                    url: path + '/order/' + idObject,
+                    success: function (response) {
+                        $('.order').html(renderOrder(response));
+
                     }
                 })
+                break;
+            case '#checkout':
+                $.ajax({
+                    type: 'POST',
+                    url: path + '/checkout',
+                    data: new FormData(document.getElementById('checkout')),
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    headers: {
+                        "X-XSRF-TOKEN": getCookie('XSRF-TOKEN')
+                    },
+                    success: function () {
+                        window.location.hash = '#index';
+                    },
+                    error: function (xhr) {
+                        $('.cart').show();
+                        renderErrors(xhr);
+                    }
+                });
                 break;
             default:
                 // If all else fails, always default to index
@@ -216,10 +257,12 @@ $(document).ready(function () {
                     success: function (response) {
                         // Render the products in the index list
                         $('.index').html(renderList(response, 'index', 'guest'));
-                    }
+                    },
                 });
+
                 break;
         }
+        //after rendering the html we can translate the labels
     }
     window.onhashchange();
 });

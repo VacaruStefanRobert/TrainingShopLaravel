@@ -13,6 +13,7 @@
     <!-- Custom JS script -->
     <script src="routing.js" type="text/javascript">
     </script>
+    <script src="translate.js" type="text/javascript"></script>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg bg-light">
@@ -33,82 +34,22 @@
 
 <!-- The cart page -->
 <div class="page cart">
-    <div class="noProducts" style="display: none">No products in cart!</div>
     <!-- The cart element where the products list is rendered -->
     <div class="prod">
-
     </div>
 </div>
+<!--products page-->
+<div class="page products"></div>
+<!--orders page-->
+<div class="page orders"></div>
+<!--order page-->
+<div class="page order"></div>
 <!--add/edit product-->
-<div class="page add">
-    <div class="container px-4">
-        <form onsubmit="changeHashOnSubmit('#addProduct');return false;" method="POST" id="add"
-              enctype="multipart/form-data">
-            <div class="mb-3">
-                <label for="titleInput" class="form-label">Title of Product</label>
-                <input type="text" class="form-control" id="titleInput"
-                       name="title">
-            </div>
-            <div class="mb-3">
-                <label for="descriptionInput" class="form-label">Description</label>
-                <textarea class="form-control" id="descriptionInput"
-                          rows="3"
-                          name="description">
-            </textarea>
-            </div>
-            <div class="input-group mb-3">
-                <span class="input-group-text">$</span>
-                <input type="text" class="form-control" aria-label="Amount (to the nearest dollar)"
-                       name="price" id="priceInput">
-            </div>
-            <div class="mb-3">
-                <label for="image" class="form-label">Input your image</label>
-                <input class="form-control" type="file" id="image" name="image">
-            </div>
-            <div class="d-grid gap-2 col-4 mx-auto">
-                <input class="btn btn-primary" type="submit"
-                       name="add">
-            </div>
-        </form>
-    </div>
-</div>
+<div class="page add"></div>
 <!--login-->
 <div class="page login">
-    <section class="vh-100">
-        <div class="container py-5 h-100">
-            <div class="row d-flex justify-content-center align-items-center h-100">
-                <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-                    <div class="card bg-primary text-white">
-                        <div class="card-body p-5 text-center">
 
-                            <div class="mb-md-5 mt-md-4 pb-5">
-                                <form onsubmit="changeHashOnSubmit('#loginSubmit');return false;" id="login">
-                                    <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
-                                    <p class="text-white-50 mb-5" id="title">Please enter your username and
-                                        password!</p>
-                                    <div class="form-outline form-white mb-4">
-                                        <label class="form-label" for="typeNameX">Username</label>
-                                        <input type="text" id="typeNameX" class="form-control form-control-lg"
-                                               name="name"/>
-                                    </div>
-                                    <div class="form-outline form-white mb-4">
-                                        <label class="form-label" for="typePasswordX">Password</label>
-                                        <input type="password" id="typePasswordX" class="form-control form-control-lg"
-                                               name="password"/>
-                                    </div>
-                                    <button class="btn btn-outline-light btn-lg px-5"
-                                            type="submit">Login
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 </div>
-<div class="page products"></div>
-<div class="page orders"></div>
+
 </body>
 </html>
