@@ -35,7 +35,8 @@ let translationWords = {
     "Total": "Total",
     "Delete": "Sterge",
     "Please provide the correct input!": "Te rugam sa introduci input-ul corect!",
-    "Wrong Credentials!": "Credentiale gresite!"
+    "Wrong Credentials!": "Credentiale gresite!",
+    "Shop":"Magazin"
 }
 
 function translate(word) {

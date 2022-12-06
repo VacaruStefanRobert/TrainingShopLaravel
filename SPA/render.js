@@ -1,51 +1,32 @@
-const path = 'http://localhost/TrainingShopLaravel/public';
 const img_path = 'http://localhost/TrainingShopLaravel/storage/app/public/images/'
-let idObject;
+
+//setup ajax base url
+const baseUrl = 'http://localhost/TrainingShopLaravel/public';
+$.ajaxSetup({
+    beforeSend: function (xhr, options) {
+        options.url = baseUrl + options.url;
+    }
+})
+
+$('title').text(function () {
+    return translate('Shop');
+});
 
 //get token for form submit
-function getCookie(c_name) {
-    let c_start;
-    let c_end;
+function getCookie(name) {
+    let start;
+    let end;
     if (document.cookie.length > 0) {
-        c_start = document.cookie.indexOf(c_name + "=");
-        if (c_start !== -1) {
-            c_start = c_start + c_name.length + 1;
-            c_end = document.cookie.indexOf(";", c_start);
-            if (c_end === -1) c_end = document.cookie.length;
-
-            return unescape(document.cookie.substring(c_start, c_end));
+        start = document.cookie.indexOf(name + '=');
+        if (start !== -1) {
+            start = start + name.length + 1;
+            end = document.cookie.indexOf(';', start);
+            if (end === -1) end = document.cookie.length;
+            return unescape(document.cookie.substring(start, end));
         }
     }
-    return "";
+    return '';
 }
-
-const changeHashOnSubmit = (hash) => {
-    //if u have a hash and you want to access the same hash u need to force the event, if not the routing wont get to the specific case
-    if (hash === window.location.hash) {
-        window.dispatchEvent(new HashChangeEvent("hashchange"));
-    } else {
-        window.location.hash = hash;
-    }
-};
-
-//event listeners
-$(document).on('submit', '.form', function () {
-    if (this.firstChild.id === 'idInput') {
-        idObject = this.firstChild.value;
-    }
-    let hash = this.action.split('/')[4];
-    //in case we have the same hash we need to force the event
-    changeHashOnSubmit(hash)
-    return false;
-});
-
-$(document).on('submit', '.formButton', function () {
-    console.log(this.childNodes[1].value);
-    idObject = this.childNodes[1].value;
-    let hash = this.action.split('/')[4];
-    changeHashOnSubmit(hash)
-    return false;
-});
 
 const changePrivileges = (privileges) => {
     if (privileges === 'admin') {
@@ -55,7 +36,7 @@ const changePrivileges = (privileges) => {
     }
 }
 
-function checkPrivileges() {
+function redirectIfNotAdmin() {
     if (localStorage.getItem('admin') !== 'true') {
         window.location.hash = '#';
     }
@@ -67,20 +48,216 @@ const renderErrors = (xhr) => {
     $.each(errors, function (key, error) {
         $('#' + key + 'Error').show().html(translate('Please provide the correct input!'));
     });
-
 }
 
+//if u have a hash and you want to access the same hash u need to force the event, if not the routing wont get to the specific case
+const changeHashOnSubmit = (hash) => {
+    if (hash === window.location.hash) {
+        window.dispatchEvent(new HashChangeEvent('hashchange'));
+    } else {
+        window.location.hash = hash;
+    }
+};
+
+//login
+$(document).on('submit', '.login', function (event) {
+    event.preventDefault();
+    $('.error').empty().hide();
+    $.ajax({
+        type: 'POST',
+        dataType: 'json',
+        url: '/users',
+        headers: {
+            'X-XSRF-TOKEN': getCookie('XSRF-TOKEN')
+        },
+        data: new FormData(document.getElementById('login')),
+        processData: false,
+        contentType: false,
+        cache: false,
+        success: function (response) {
+            if ('Success!' === response.message) {
+                changePrivileges('admin');
+                window.location.hash = '#products';
+            } else {
+                if (!$('#error').length) {
+                    $('#loginError').show().html(translate('Wrong Credentials!'));
+                }
+            }
+        },
+        error: function (xhr) {
+            //general errors
+            renderErrors(xhr);
+        }
+    })
+});
+
+//add to cart
+$(document).on('submit', '.addToCart', function (event) {
+    event.preventDefault();
+    let id = this.childNodes[1].value;
+    $.ajax({
+        type: 'PUT',
+        dataType: 'json',
+        url: '/cart/' + id,
+        headers: {
+            'X-XSRF-TOKEN': getCookie('XSRF-TOKEN')
+        },
+        success: function () {
+            window.location.hash = '#cart';
+        }
+    });
+});
+
+//remove from cart
+$(document).on('submit', '.remove', function (event) {
+    event.preventDefault();
+    let id = this.childNodes[1].value;
+    $.ajax({
+        type: 'DELETE',
+        url: '/cart/' + id,
+        headers: {
+            'X-XSRF-TOKEN': getCookie('XSRF-TOKEN')
+        },
+        success: function () {
+            changeHashOnSubmit('#cart');
+        }
+    });
+});
+
+//add
+$(document).on('submit', '#add', function (event) {
+    event.preventDefault();
+    redirectIfNotAdmin();
+    $.ajax({
+        type: 'POST',
+        url: '/products',
+        data: new FormData(document.getElementById('add')),
+        processData: false,
+        contentType: false,
+        cache: false,
+        headers: {
+            'X-XSRF-TOKEN': getCookie('XSRF-TOKEN')
+        },
+        success: function (response) {
+            //if image already exists
+            if (response['errors']) {
+                $('.add').show();
+                $('#imageError').show().html(response['errors']);
+
+            } else {
+                window.location.hash = '#products';
+            }
+        },
+        error: function (xhr) {
+            //general errors
+            $('.add').show();
+            renderErrors(xhr);
+        }
+    });
+});
+
+//edit
+$(document).on('submit', '#edit', function (event) {
+    event.preventDefault();
+    redirectIfNotAdmin();
+    let formInfo = new FormData(document.getElementById('edit'));
+    formInfo.append('_method', 'patch');
+    $.ajax({
+        type: 'POST',
+        url: '/products/' + formInfo.get('id'),
+        data: formInfo,
+        processData: false,
+        contentType: false,
+        cache: false,
+        headers: {
+            'X-XSRF-TOKEN': getCookie('XSRF-TOKEN')
+        },
+        success: function (response) {
+            //if image already exists
+            if (response['errors']) {
+                $('.add').show();
+                $('#imageError').show().html(response['errors']);
+
+            } else {
+                window.location.hash = '#products';
+            }
+        },
+        error: function (xhr) {
+            //general errors
+            $('.add').show();
+            renderErrors(xhr);
+        }
+    });
+});
+
+//delete
+$(document).on('submit', '.deleteProduct', function (event) {
+    event.preventDefault();
+    $.ajax({
+        type: 'DELETE',
+        url: '/products/' + this.childNodes[1].value,
+        headers: {
+            'X-XSRF-TOKEN': getCookie('XSRF-TOKEN')
+        },
+        success: function () {
+            changeHashOnSubmit('#products');
+        }
+    })
+});
+
+//logout
+$(document).on('click', '#logout', function (e) {
+    e.preventDefault();
+    redirectIfNotAdmin();
+    $.ajax(
+        {
+            type: 'DELETE',
+            url: '/users',
+            headers: {
+                'X-XSRF-TOKEN': getCookie('XSRF-TOKEN')
+            },
+            success: function () {
+                changePrivileges('guest');
+                window.location.hash = '#';
+            }
+        }
+    );
+});
+
+//checkout
+$(document).on('submit', '#checkout', function (event) {
+    event.preventDefault();
+    $('.error').empty();
+    $.ajax({
+        type: 'POST',
+        url: '/checkout',
+        data: new FormData(document.getElementById('checkout')),
+        processData: false,
+        contentType: false,
+        cache: false,
+        headers: {
+            'X-XSRF-TOKEN': getCookie('XSRF-TOKEN')
+        },
+        success: function () {
+            window.location.hash = '#';
+        },
+        error: function (xhr) {
+            $('.cart').show();
+            renderErrors(xhr);
+        }
+    });
+})
+
 function renderNav() {
+    $('.navbar-nav').children().remove();
     if (localStorage.getItem('admin') === 'true') {
-        $('.navbar-nav').children().remove();
         $('.navbar-nav').append(
             `<a class="nav-link active" aria-current="page" href="#products" >${translate('Products')}</a>
-            <a class="nav-link " href="#logout" id="Logout" >${translate('Logout')}</a>
+            <a class="nav-link " href="" id="logout" >${translate('Logout')}</a>
             <a class="nav-link " href="#orders" >${translate('Orders')}</a>
-            <a class="nav-link " href="#addShow" >${translate('Add Product')}</a>
+            <a class="nav-link " href="#product" >${translate('Add Product')}</a>
             <a class="nav-link " href="#cart">${translate('Cart')}</a>`)
-    } else if (localStorage.getItem('admin') === 'false' || localStorage.getItem('admin') === null) {
-        $('.navbar-nav').children().remove();
+    } else {
         $('.navbar-nav').append(
             `<a class="nav-link active" aria-current="page" href="#" >${translate('Products')}</a>
             <a class="nav-link " href="#login" >${translate('Login')}</a>
@@ -95,7 +272,7 @@ function renderCart(products) {
     let html = renderList(products['products'], 'cart', 'guest');
     html += `
     <div class="container-fluid">
-        <form action="#checkout" class="form" id="checkout">
+        <form class="form" id="checkout" method="POST">
             <div class="mb-3">
             <br>
             <label for="exampleFormControlInput1" class="form-label">${translate('Name')}</label>
@@ -113,7 +290,7 @@ function renderCart(products) {
             </div>
             <p class="text-red-50 mb-5 error" style="color: red;display:none" id="commentsError"></p>
             <div class="mb-3">
-            <div>Price: ${products['totalPrice']} $</div>
+            <div>${translate('Price')}: ${products['totalPrice']} $</div>
             <input type="hidden" value=" ${products['totalPrice']}" name="total">
             </div>
             <button class="btn btn-primary" type="submit" name="checkout">${translate('Checkout')}</button>
@@ -135,80 +312,65 @@ function renderList(products, option, privileges) {
                 <p class="card-text">${translate('Price')}:${product.price} $</p>
                 <div class="d-grid gap-2 d-md-block">
         `;
-        if (privileges === 'guest') {
-            if (option === 'cart') {
-                html += `
-                    <form action="#removed" class="formButton" >
-                    <input type="hidden" value=" ${product.id}" name="id" id="idInput">
-                    <button  class="btn btn-primary" type="submit" lng-tag="Remove">${translate('Remove')}`;
-            } else {
-                html += `
-                    <form action="#addToCart" class="formButton">
-                    <input type="hidden" value=" ${product.id} " name="id" id="idInput">
-                    <button class="btn btn-primary" type="submit" value="Add" lng-tag="Add" >${translate('Add')}`;
-            }
+        if (option === 'cart') {
             html += `
-                </button>
-                </form>
-                </div>
-                </div>
-                </div>
-                </div>
-            `;
-        } else if (option === 'admin') {
-            if (option === 'cart') {
-                html += `
-                    <form action="#removed" class="formButton" >
-                        <input type="hidden" value=" ${product.id}" name="id" id="idInput">
-                        <button  class="btn btn-primary" type="submit" >${translate('Remove')}
-                        </button>
-                    </form>
-                    </div>
-                    </div>
-                    </div>
-                    </div>
-                    `;
-            } else {
-                html +=
-                    `<form action="#addToCart" class="formButton">
+                    <form class="remove" method="POST">
                     <input type="hidden" value=" ${product.id}" name="id" id="idInput">
-                    <button class="btn btn-primary" type="submit" value="Add" >${translate('Add')}</button>
+                    <button  class="btn btn-primary" type="submit" >${translate('Remove')}
+                    </button>
                     </form>
-                    <form action="#editShow" class="formButton">
-                    <input type="hidden" value="${product.id}" name="id" id="idInput" >
-                    <button  class="btn btn-primary" type="submit" >${translate('Edit')}</button>
+                    </div>
+                    </div>
+                    </div>
+                    </div>
+            `;
+        } else if (privileges === 'guest') {
+            html +=
+                `<form class="addToCart" method="POST">
+                    <input type="hidden" value=" ${product.id} " name="id" id="idInput">
+                    <button class="btn btn-primary" type="submit" value="Add">${translate('Add')}
+                    </button>
                     </form>
-                    <form action="#delete" class="formButton">
+                    </div>
+                    </div>
+                    </div>
+                    </div>
+            `;
+        } else if (privileges === 'admin') {
+            html +=
+                `<form class="addToCart" method="POST">
+                    <input type="hidden" value=" ${product.id} " name="id" id="idInput">
+                    <button class="btn btn-primary" type="submit" value="Add">${translate('Add')}</button>
+                    </form>
+                    <form class="deleteProduct" method="POST">
                     <input type="hidden" value="${product.id} " name="id" id="idInput">
                     <button  class="btn btn-primary" type="submit" >${translate('Delete')}</button>
                     </form>
+                    <a  class="btn btn-primary" href="#product/${product.id}/edit">${translate('Edit')}</a>
                     </div>
                     </div>
                     </div>
-                    </div>
-                `;
-            }
+                    </div>`;
         }
     });
-    html +=`</div>`;
+    html += `</div>`;
     return html;
 }
-
 
 function renderAddAndEdit() {
     let html = [];
     html +=
         ` <div class="container px-4">
-                <form action="#addProduct" class="form" id="add"
-                      enctype="multipart/form-data">
+                <form class="form" id="add"
+                      enctype="multipart/form-data" method="POST">
                     <div class="mb-3">
-                        <label for="titleInput" class="form-label" lng-tag="Title of Product">${translate('Title of Product')}</label>
+                        <label for="titleInput" class="form-label" >${translate('Title of Product')}</label>
                         <input type="text" class="form-control" id="titleInput"
                                name="title">
                     </div>
                    <p class="text-red-50 mb-5 error" style="color: red;display:none" id="titleError"></p>
                     <div class="mb-3">
-                        <label for="descriptionInput" class="form-label" lng-tag="Description">${translate('Description')}</label>
+                        <label for="descriptionInput" class="form-label" >${translate('Description')}</label>
                         <textarea class="form-control" id="descriptionInput"
                                   rows="3"
                                   name="description">
@@ -222,13 +384,13 @@ function renderAddAndEdit() {
                     </div>
                     <p class="text-red-50 mb-5 error" style="color: red;display:none" id="priceError"></p>
                     <div class="mb-3">
-                        <label for="image" class="form-label" lng-tag="Input your image">${translate('Input your image')}</label>
+                        <label for="image" class="form-label" >${translate('Input your image')}</label>
                         <input class="form-control" type="file" id="image" name="image">
                     </div>
                     <p class="text-red-50 mb-5 error" style="color: red ;display:none" id="imageError"></p>
                     <div class="d-grid gap-2 col-4 mx-auto">
-                        <input class="btn btn-primary" type="submit"
-                               name="add">
+                        <button class="btn btn-primary" type="submit"
+                               name="add">Add</button>
                     </div>
                 </form>
             </div>`;
@@ -243,7 +405,7 @@ function renderOrders(orders) {
                 <div class="container">
                     <!-- Title -->
                     <div class="d-flex justify-content-between align-items-center py-3">
-                        <h2 class="h5 mb-0" lng-tag="Order"> ${translate('Order')}#  ${order.id} </h2>
+                        <h2 class="h5 mb-0"> ${translate('Order')}#  ${order.id} </h2>
                     </div>
                     <!-- Main content -->
                     <div class="row">
@@ -253,25 +415,15 @@ function renderOrders(orders) {
                                 <div class="card-body">
                                     <div class="mb-3 d-flex justify-content-between">
                                         <div>
-                                            <span class="h6" lng-tag="Date">${translate('Date')} : ${order.created_at} </span>
+                                            <span class="h6" >${translate('Date')} : ${order.created_at} </span>
                                         </div>
                                         <div class="d-flex">
-                                            <form action="#order" class="formButton">
-                                               <input type="hidden" value=" ${order.id}" id="idInput" name="id">
-                                               <button  class="btn btn-link p-0 me-3 d-none d-lg-block btn-icon-text" type="submit" lng-tag="Go To Order">${translate('Go to Order')}</button>
-                                            </form>
+                                            <a href="#order/${order.id}" class="btn btn-link p-0 me-3 d-none d-lg-block btn-icon-text orderButton" type="submit" >${translate('Go to Order')}</a>                                       
                                             <div class="dropdown">
                                                 <button class="btn btn-link p-0 text-muted" type="button"
                                                         data-bs-toggle="dropdown">
                                                     <i class="bi bi-three-dots-vertical"></i>
                                                 </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="#"><i
-                                                                class="bi bi-pencil"></i>${translate('Edit')} </a>
-                                                    </li>
-                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-printer"></i>
-                                                            ${translate('Print')}</a></li>
-                                                </ul>
                                             </div>
                                         </div>
                                     </div>
@@ -282,14 +434,14 @@ function renderOrders(orders) {
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-lg-6">
-                                            <h3 class="h6" lng-tag="Payment">${translate('Payment')}</h3>
-                                            <p lng-tag="Total">${translate('Total')} : ${order.total} $</p>
+                                            <h3 class="h6" >${translate('Payment')}</h3>
+                                            <p>${translate('Total')} : ${order.total} $</p>
                                         </div>
                                         <div class="col-lg-6">
-                                            <h3 class="h6" lng-tag="Comments and details">${translate('Comments and details')}</h3>
+                                            <h3 class="h6">${translate('Comments and details')}</h3>
                                             <address>
-                                                <strong lng-tag="Name">${translate('Name')} : ${order.name}</strong><br>
-                                                <div lng-tag="Comments and details">${translate('Comments and details')} : ${order.comments} </div>
+                                                <strong>${translate('Name')} : ${order.name}</strong><br>
+                                                <div>${translate('Comments and details')} : ${order.comments} </div>
                                             </address>
                                         </div>
                                     </div>
@@ -302,7 +454,6 @@ function renderOrders(orders) {
     });
     return html;
 }
-
 
 function renderOrder(response) {
     let html = [];
@@ -329,13 +480,6 @@ function renderOrder(response) {
                                                         data-bs-toggle="dropdown">
                                                     <i class="bi bi-three-dots-vertical"></i>
                                                 </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="#"><i
-                                                                class="bi bi-pencil"></i> ${translate('Edit')}</a>
-                                                    </li>
-                                                    <li><a class="dropdown-item" href="#"><i class="bi bi-printer"></i>
-                                                            ${translate('Print')}</a></li>
-                                                </ul>
                                             </div>
                                        </div>
                                     </div>`;
@@ -404,11 +548,11 @@ function renderLogin() {
                             <div class="card bg-primary text-white">
                                 <div class="card-body p-5 text-center">
                                     <div class="mb-md-5 mt-md-4 pb-5">
-                                        <form action="#loginSubmit" class="form" id="login">
+                                        <form class="login" id="login" method="POST">
                                             <h2 class="fw-bold mb-2 text-uppercase">${translate('Login')}</h2>
                                             <p class="text-white-50 mb-5" id="title">${translate('Please enter your username and password!')}
                                                 </p>
-                                            <p class="text-red-50 mb-5 error" style="color: red;display: none" id="login">${translate('Wrong Credentials!')}</p>
+                                            <p class="text-red-50 mb-5 error" style="color: red;display: none" id="loginError"></p>
                                             <div class="form-outline form-white mb-4">
                                                 <label class="form-label" for="typeNameX">${translate('Username')}</label>
                                                 <input type="text" id="typeNameX" class="form-control form-control-lg"
